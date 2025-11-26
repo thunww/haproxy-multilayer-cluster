@@ -1,0 +1,19 @@
+# Backend (Node.js)
+backend/node_modules/
+backend/.env
+
+# Frontend (React)
+frontend/node_modules/
+frontend/.env
+frontend/build/
+
+# Docker temp
+*.log
+*.pid
+*.tmp
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

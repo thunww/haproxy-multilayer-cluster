@@ -1,0 +1,62 @@
+services:
+  # ───────────── L4
+  haproxy-l4:
+    image: haproxy:latest
+    container_name: haproxy_l4
+    volumes:
+      - ./haproxy/l4/haproxy-l4.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    ports:
+      - "80:80"
+    depends_on:
+      - haproxy-l7-1
+      - haproxy-l7-2
+
+  # ───────────── L7 NODE 1
+  haproxy-l7-1:
+    image: haproxy:latest
+    container_name: haproxy_l7_1
+    volumes:
+      - ./haproxy/l7/haproxy-l7.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    depends_on:
+      - fe1
+      - fe2
+      - be1
+      - be2
+
+  # ───────────── L7 NODE 2
+  haproxy-l7-2:
+    image: haproxy:latest
+    container_name: haproxy_l7_2
+    volumes:
+      - ./haproxy/l7/haproxy-l7.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    depends_on:
+      - fe1
+      - fe2
+      - be1
+      - be2
+
+  # ───────────── FE Cluster
+  fe1:
+    build: ./frontend
+    container_name: fe1
+    expose:
+      - "3000"
+
+  fe2:
+    build: ./frontend
+    container_name: fe2
+    expose:
+      - "3000"
+
+  # ───────────── BE Cluster
+  be1:
+    build: ./backend
+    container_name: be1
+    expose:
+      - "5000"
+
+  be2:
+    build: ./backend
+    container_name: be2
+    expose:
+      - "5000"
