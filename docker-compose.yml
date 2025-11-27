@@ -1,5 +1,7 @@
+version: "3.9"
+
 services:
-  # ───────────── L4
+  # ───────────── L4 ─────────────
   haproxy-l4:
     image: haproxy:latest
     container_name: haproxy_l4
@@ -11,52 +13,76 @@ services:
       - haproxy-l7-1
       - haproxy-l7-2
 
-  # ───────────── L7 NODE 1
+  # ───────────── L7 NODE 1 ─────────────
   haproxy-l7-1:
     image: haproxy:latest
     container_name: haproxy_l7_1
     volumes:
       - ./haproxy/l7/haproxy-l7.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    ports:
+      - "8405:8404"
     depends_on:
       - fe1
       - fe2
       - be1
       - be2
 
-  # ───────────── L7 NODE 2
+  # ───────────── L7 NODE 2 ─────────────
   haproxy-l7-2:
     image: haproxy:latest
     container_name: haproxy_l7_2
     volumes:
       - ./haproxy/l7/haproxy-l7.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    ports:
+      - "8406:8404"
     depends_on:
       - fe1
       - fe2
       - be1
       - be2
 
-  # ───────────── FE Cluster
+  # ───────────── FE DEV ─────────────
   fe1:
     build: ./frontend
     container_name: fe1
-    expose:
-      - "3000"
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
 
   fe2:
     build: ./frontend
     container_name: fe2
-    expose:
-      - "3000"
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
 
-  # ───────────── BE Cluster
+  # ───────────── BE DEV ─────────────
   be1:
     build: ./backend
     container_name: be1
-    expose:
-      - "5000"
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
 
   be2:
     build: ./backend
     container_name: be2
-    expose:
-      - "5000"
+    ports:
+      - "5002:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+networks:
+  default:
+    driver: bridge
