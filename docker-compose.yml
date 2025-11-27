@@ -37,6 +37,15 @@ services:
       - be1
       - be2
 
+  # ========================= HAProxy Exporter =========================
+  haproxy-exporter:
+    image: prom/haproxy-exporter
+    container_name: haproxy-exporter
+    command:
+      - '--haproxy.scrape-uri=http://haproxy-l7-1:8404/stats;csv'
+    depends_on:
+      - haproxy-l7-1
+
   # ========================= FRONTEND CLUSTER =========================
   fe1:
     build: ./frontend
@@ -71,6 +80,11 @@ services:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    depends_on:
+      - cadvisor
+      - haproxy-exporter
+      - be1
+      - be2
 
   # ========================= GRAFANA =========================
   grafana:
@@ -78,6 +92,8 @@ services:
     container_name: grafana
     ports:
       - "3003:3000"
+    depends_on:
+      - prometheus
 
   # ========================= CADVISOR =========================
   cadvisor:
