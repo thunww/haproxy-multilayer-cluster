@@ -5,6 +5,8 @@ export const loginApi = async (email, password) => {
     body: JSON.stringify({ email, password }),
   });
 
+  if (!res.ok) throw new Error("Login failed");
+
   const data = await res.json();
   return data.token;
 };
