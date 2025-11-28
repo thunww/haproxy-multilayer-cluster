@@ -8,7 +8,7 @@ services:
     volumes:
       - ./haproxy/l4/haproxy-l4.cfg:/usr/local/etc/haproxy/haproxy.cfg
     ports:
-      - "80:80"
+      - "80:80"        # ONLY PUBLIC ENTRY POINT
     depends_on:
       - haproxy-l7-1
       - haproxy-l7-2
@@ -17,8 +17,10 @@ services:
   haproxy-l7-1:
     image: haproxy:latest
     container_name: haproxy_l7_1
+    expose:
+      - "8080"         # INTERNAL ONLY
     volumes:
-      - ./haproxy/l7/haproxy-l7.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./haproxy/l7/haproxy-l7-1.cfg:/usr/local/etc/haproxy/haproxy.cfg
     depends_on:
       - fe1
       - fe2
@@ -29,8 +31,10 @@ services:
   haproxy-l7-2:
     image: haproxy:latest
     container_name: haproxy_l7_2
+    expose:
+      - "8080"         # INTERNAL ONLY
     volumes:
-      - ./haproxy/l7/haproxy-l7.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./haproxy/l7/haproxy-l7-2.cfg:/usr/local/etc/haproxy/haproxy.cfg
     depends_on:
       - fe1
       - fe2
@@ -51,26 +55,26 @@ services:
     build: ./frontend
     container_name: fe1
     expose:
-      - "3000"
+      - "3000"         # INTERNAL ONLY
 
   fe2:
     build: ./frontend
     container_name: fe2
     expose:
-      - "3000"
+      - "3000"         # INTERNAL ONLY
 
   # ========================= BACKEND CLUSTER =========================
   be1:
     build: ./backend
     container_name: be1
     expose:
-      - "5000"
+      - "5000"         # INTERNAL ONLY
 
   be2:
     build: ./backend
     container_name: be2
     expose:
-      - "5000"
+      - "5000"         # INTERNAL ONLY
 
   # ========================= PROMETHEUS =========================
   prometheus:
@@ -83,8 +87,6 @@ services:
     depends_on:
       - cadvisor
       - haproxy-exporter
-      - be1
-      - be2
 
   # ========================= GRAFANA =========================
   grafana:
